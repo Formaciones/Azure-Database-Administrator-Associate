@@ -1,0 +1,111 @@
+# TDE en SQL Server IaaS (VMs)
+
+> Nota: los comandos siguientes son específicos para instancias de SQL Server en máquinas virtuales (IaaS). En IaaS usted es responsable de gestionar los certificados, backups y del almacenamiento de los ficheros de clave.
+
+## Objetivo
+
+Transparent Data Encryption (TDE) cifra los datos en reposo a nivel de base de datos (archivos MDF/LDF y backups). En entornos IaaS debe crear y gestionar las claves y certificados necesarios y mantener copias de seguridad seguras del certificado con su clave privada.
+
+## Comandos T-SQL con comentarios en castellano
+
+Copie y pegue los bloques en SQL Server Management Studio (SSMS) o en la shell T-SQL conectada a la instancia. Sustituya nombres de base de datos, rutas y contraseñas por valores apropiados.
+
+```sql
+-- Verificar el estado de cifrado de las bases de datos
+-- Muestra si cada base de datos está cifrada y el estado del DEK (Database Encryption Key)
+SELECT db.name, db.is_encrypted, dek.encryption_state
+FROM sys.databases db
+LEFT JOIN sys.dm_database_encryption_keys dek ON db.database_id = dek.database_id;
+GO
+
+-- Verificar los certificados existentes en la base de datos 'master'
+-- Lista los certificados con su sujeto, emisor, fecha de expiración y huella
+SELECT name, subject, issuer_name, expiry_date, thumbprint
+FROM sys.certificates
+ORDER BY name;
+GO
+
+-- Crear Master Key en la base de datos 'master'
+-- Necesaria para proteger objetos criptográficos en el servidor local
+USE master
+GO
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'P@assw0rdSegura'
+GO
+
+-- Crear el certificado que usará el TDE (en 'master')
+-- El certificado protege la Database Encryption Key (DEK)
+USE master
+GO
+CREATE CERTIFICATE TDENorthwind WITH SUBJECT = 'Certificado TDE para Northwind'
+GO
+
+-- Crear la Database Encryption Key (DEK) en la base de datos objetivo
+-- Se genera la DEK y se cifra con el certificado del servidor
+USE NORTHWIND
+GO
+CREATE DATABASE ENCRYPTION KEY
+WITH ALGORITHM = AES_256
+ENCRYPTION BY SERVER CERTIFICATE TDENorthwind; -- TDENorthwind es el certificado creado en 'master'
+GO
+
+-- Activar TDE para la base de datos
+-- SET ENCRYPTION ON inicia el cifrado en la base de datos seleccionada
+USE NORTHWIND
+GO
+ALTER DATABASE NORTHWIND SET ENCRYPTION ON; -- Para desactivar usar SET ENCRYPTION OFF
+GO
+
+-- Backup del certificado (operación crítica: guarde la clave privada en lugar seguro)
+-- Realice copia del certificado y su clave privada para poder restaurarlo en otro servidor
+USE master
+GO
+BACKUP CERTIFICATE TDENorthwind
+TO FILE = 'C:\TDE\TDENorthwind.cer'
+WITH PRIVATE KEY (
+	FILE = 'C:\TDE\TDENorthwind.pvk',
+	ENCRYPTION BY PASSWORD = 'OtraP@assw0rdSegura'
+);
+GO
+```
+
+## Recuperación / Restauración del certificado (antes de adjuntar una base de datos cifrada)
+
+Si debe adjuntar o restaurar una base de datos que estuvo protegida con TDE, primero restaure el certificado y su clave privada en la base de datos `master` del servidor destino. Ejecute los siguientes pasos en el servidor receptor antes de restaurar/attach la base cifrada:
+
+```sql
+-- Crear Master Key en master si no existe (necesario para almacenar el certificado)
+USE master
+GO
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'P@assw0rdSegura'
+GO
+
+-- Restaurar el certificado desde ficheros exportados previamente
+-- Ajuste las rutas y la contraseña de desencriptación según su backup
+USE master
+GO
+CREATE CERTIFICATE TDENorthwind
+FROM FILE = 'C:\TDE\TDENorthwind.cer'
+WITH PRIVATE KEY (
+	FILE = 'C:\TDE\TDENorthwind.pvk',
+	DECRYPTION BY PASSWORD = 'OtraP@assw0rdSegura'
+);
+GO
+```
+
+Notas importantes:
+
+- El archivo de la clave privada (`.pvk`) y su contraseña deben mantenerse en un almacén seguro y fuera del servidor de producción si es posible.
+- Sin el certificado (y su clave privada) no podrá restaurar ni adjuntar bases de datos cifradas con TDE en otro servidor.
+- Asegure también los backups de la base de datos y pruebe el flujo de recuperación en un entorno controlado.
+- Considere usar soluciones HSM/Key Vault y procedimientos de backup automatizados para cumplir requisitos de cumplimiento.
+
+## Buenas prácticas
+
+- Haga backup del certificado y de la clave maestra inmediatamente después de crear el certificado.
+- Documente y proteja las contraseñas usadas para encriptar los backups de certificados.
+- Mantenga un plan de recuperación y pruebe restauraciones periódicamente.
+
+## Recursos
+
+- TDE en SQL Server: https://learn.microsoft.com/sql/relational-databases/security/transparent-data-encryption
+

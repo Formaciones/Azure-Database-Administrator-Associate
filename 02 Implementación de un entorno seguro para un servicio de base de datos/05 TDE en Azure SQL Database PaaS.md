@@ -1,0 +1,60 @@
+# TDE en Azure SQL Database (PaaS)
+
+> Nota: los comandos y vistas mostrados a continuación son específicos para Azure SQL Database (PaaS).
+
+## Descripción general
+
+Transparent Data Encryption (TDE) cifra los archivos de base de datos y los backups para proteger los datos en reposo. En Azure SQL Database TDE está habilitado por defecto, pero puede administrarse y auditarse con T-SQL y configurarse para usar claves gestionadas por el cliente (CMK) en Azure Key Vault.
+
+## Consultas y comandos T-SQL (comentados en castellano)
+
+```sql
+-- Consultar el estado de cifrado de todas las bases de datos en el servidor
+-- Devuelve el estado de cifrado para cada base de datos y una descripción legible
+SELECT
+		db_name(database_id) AS DatabaseName,
+		encryption_state,
+		CASE encryption_state
+				WHEN 0 THEN 'No database encryption key present, no encryption'
+				WHEN 1 THEN 'Unencrypted'
+				WHEN 2 THEN 'Encryption in progress'
+				WHEN 3 THEN 'Encrypted'
+				WHEN 4 THEN 'Key change in progress'
+				WHEN 5 THEN 'Decryption in progress'
+				WHEN 6 THEN 'Protection change in progress'
+		END AS EncryptionStateDesc
+FROM sys.dm_database_encryption_keys;
+GO
+
+-- Activar la encriptación TDE para la base de datos indicada
+-- Sustituya AdventureWorksLT por el nombre de su base de datos
+ALTER DATABASE AdventureWorksLT SET ENCRYPTION ON;
+GO
+
+-- Desactivar la encriptación TDE para la base de datos indicada
+-- Use con precaución: desactivarla permitirá que la base deje de estar cifrada en reposo
+ALTER DATABASE AdventureWorksLT SET ENCRYPTION OFF;
+GO
+```
+
+## Notas operativas y Key Vault (CMK)
+
+- En Azure SQL Database puede elegir entre clave gestionada por el servicio (service-managed) o clave gestionada por el cliente (customer-managed key, CMK) almacenada en Azure Key Vault.
+- Para usar CMK con TDE en Azure SQL Database:
+	- Cree una clave RSA/HSM en Azure Key Vault.
+	- Asigne permisos a la identidad administrada del servidor SQL para `get`, `wrapKey` y `unwrapKey` en Key Vault.
+	- Configure el `server tde protector` para apuntar a la clave de Key Vault (desde el Portal, Azure CLI o ARM template).
+- Cuando cambie la clave (rotación) o configure CMK, supervise `sys.dm_database_encryption_keys` para verificar el progreso de cifrado o de cambio de protector.
+
+## Buenas prácticas
+
+- Mantenga TDE activado en producción; utilice CMK si necesita control y trazabilidad de claves.
+- Pruebe la restauración de backups y la disponibilidad de claves en Key Vault antes de desplegar cambios de producción.
+- Use identidades gestionadas para acceder a Key Vault; evite credenciales en código.
+- Combine TDE con Always Encrypted para protección a nivel de columna cuando sea necesario.
+
+## Recursos
+
+- TDE en Azure SQL: https://learn.microsoft.com/azure/azure-sql/ 
+- Azure Key Vault: https://learn.microsoft.com/azure/key-vault
+
