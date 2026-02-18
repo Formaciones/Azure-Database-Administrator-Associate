@@ -1,4 +1,6 @@
-**Clasificación de Datos**
+# Implementación de controles de cumplimiento para datos confidenciales
+
+## Clasificación de Datos
 
 La clasificación de datos consiste en etiquetar los datos según su sensibilidad, valor legal o impacto si se divulgan. Debe realizarse de forma sistemática y apoyada por herramientas automáticas y revisiones manuales.
 
@@ -29,17 +31,17 @@ Explicación rápida:
 - Revisar: reevaluar clasificación y controles con periodicidad.
 
 
-## Ejemplos: comandos de clasificación (sensitivities)
+**Ejemplos: comandos de clasificación (sensitivities)**
 
 Los siguientes ejemplos muestran cómo consultar, añadir y eliminar clasificaciones de sensibilidad a nivel de columna. Requieren permisos suficientes en la base de datos (por ejemplo `ALTER` en el objeto o roles de seguridad adecuados).
 
-Consultar las clasificaciones existentes
+Consultar las clasificaciones existentes:
 
 ```sql
 SELECT * FROM sys.sensitivity_classifications;
 ```
 
-Añadir una clasificación a una columna
+Añadir una clasificación a una columna:
 - `ADD SENSITIVITY CLASSIFICATION TO` aplica metadata de sensibilidad a la columna indicada.
 - `LABEL` y `INFORMATION_TYPE` permiten estandarizar categorías usadas por gobernanza y reporting.
 
@@ -49,7 +51,7 @@ TO SalesLT.Customer.MiddleName
 WITH (LABEL = 'Confidential', INFORMATION_TYPE = 'Contact Info');
 ```
 
-Eliminar una clasificación existente
+Eliminar una clasificación existente:
 - `DROP SENSITIVITY CLASSIFICATION FROM` elimina la metadata asociada a la columna.
 - No elimina datos ni afecta permisos de acceso; solo quita la etiqueta de sensibilidad.
 
@@ -64,7 +66,7 @@ Notas adicionales:
 - Compruebe compatibilidad con herramientas de clasificación automatizada y con políticas de Azure Purview si las usa.
 
 
-**Implementación: Seguridad a nivel de fila (RLS) y Dynamic Data Masking (DDM)**
+## Implementación: Seguridad a nivel de fila (RLS) y Dynamic Data Masking (DDM)
 
 Seguridad a nivel de fila (Row-Level Security, RLS)
 
@@ -123,7 +125,7 @@ Importante:
 - Documentar y revisar máscaras en conjunto con clasificación.
 - Registrar accesos y excepciones en auditoría.
 
-**Libro de contabilidad (Ledger) de Azure SQL Database**
+## Libro de contabilidad (Ledger) de Azure SQL Database
 
 Concepto:
 El ledger de Azure SQL Database (ledger) proporciona un registro inmutable y verificable de los cambios en los datos. Internamente usa una cadena de hashes criptográficos para enlazar versiones de filas, lo que permite probar que los datos no han sido alterados (integridad histórica).
@@ -139,7 +141,7 @@ Uso general:
 
 Nota técnica y enlaces: la habilitación y comandos concretos pueden cambiar; consulte la documentación oficial para pasos y ejemplos de habilitación y verificación del ledger.
 
-**Microsoft Defender for SQL (antes Advanced Threat Protection)**
+## Microsoft Defender for SQL (antes Advanced Threat Protection)
 
 Qué ofrece:
 - Detección de amenazas en tiempo real: anomalías en queries, accesos anómalos, actividades sospechosas.
@@ -161,7 +163,7 @@ Buenas prácticas:
 - Programar escaneos regulares de Vulnerability Assessment.
 - Asegurar que la cuenta que gestiona Defender tenga permisos mínimos necesarios.
 
-**Referencias y enlaces de interés**
+## Referencias y enlaces de interés
 
 - Documentación oficial Azure SQL: https://learn.microsoft.com/azure/azure-sql/
 - Dynamic Data Masking: https://learn.microsoft.com/azure/azure-sql/database/dynamic-data-masking-overview

@@ -1,4 +1,4 @@
-# TDE, Always Encrypted y Firewall en Azure SQL (PaaS e IaaS)
+# Protección de los datos en tránsito y en reposo
 
 ## Introducción
 
