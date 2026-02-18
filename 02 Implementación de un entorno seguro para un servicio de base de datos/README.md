@@ -3,7 +3,7 @@
 ## Contenidos
 
 ## 01 - Autenticación y autorización
-- [01 Configure database authentication and authorization](01%20Configure%20database%20authentication%C2%A0and%20authorization.md): Explica métodos de autenticación para SQL Server (IaaS) y Azure SQL Database (PaaS), integración con Azure AD y recomendaciones de seguridad.
+- [01 Configuración de la autenticación y la autorización](01%20Configure%20database%20authentication%C2%A0and%20authorization.md): Explica métodos de autenticación para SQL Server (IaaS) y Azure SQL Database (PaaS), integración con Azure AD y recomendaciones de seguridad.
   - [Authorization examples](01.a%20Authorization%20examples.md): Ejemplos prácticos de creación de usuarios, asignación de permisos, roles y pruebas de acceso en T-SQL.
 
 ## 02 - Protección de datos y controles
