@@ -33,31 +33,29 @@ Explicación rápida:
 
 Los siguientes ejemplos muestran cómo consultar, añadir y eliminar clasificaciones de sensibilidad a nivel de columna. Requieren permisos suficientes en la base de datos (por ejemplo `ALTER` en el objeto o roles de seguridad adecuados).
 
--- Consultar las clasificaciones existentes
+Consultar las clasificaciones existentes
 
 ```sql
 SELECT * FROM sys.sensitivity_classifications;
 ```
 
--- Añadir una clasificación a una columna
-
--- Comentarios:
---  - `ADD SENSITIVITY CLASSIFICATION TO` aplica metadata de sensibilidad a la columna indicada.
---  - `LABEL` y `INFORMATION_TYPE` permiten estandarizar categorías usadas por gobernanza y reporting.
+Añadir una clasificación a una columna
+- `ADD SENSITIVITY CLASSIFICATION TO` aplica metadata de sensibilidad a la columna indicada.
+- `LABEL` y `INFORMATION_TYPE` permiten estandarizar categorías usadas por gobernanza y reporting.
 
 ```sql
-ADD SENSITIVITY CLASSIFICATION TO SalesLT.Customer.MiddleName
+ADD SENSITIVITY CLASSIFICATION 
+TO SalesLT.Customer.MiddleName
 WITH (LABEL = 'Confidential', INFORMATION_TYPE = 'Contact Info');
 ```
 
--- Eliminar una clasificación existente
-
--- Comentarios:
---  - `DROP SENSITIVITY CLASSIFICATION FROM` elimina la metadata asociada a la columna.
---  - No elimina datos ni afecta permisos de acceso; solo quita la etiqueta de sensibilidad.
+Eliminar una clasificación existente
+- `DROP SENSITIVITY CLASSIFICATION FROM` elimina la metadata asociada a la columna.
+- No elimina datos ni afecta permisos de acceso; solo quita la etiqueta de sensibilidad.
 
 ```sql
-DROP SENSITIVITY CLASSIFICATION FROM SalesLT.Customer.MiddleName;
+DROP SENSITIVITY CLASSIFICATION 
+FROM SalesLT.Customer.MiddleName;
 ```
 
 Notas adicionales:
