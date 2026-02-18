@@ -1,4 +1,4 @@
-# Autenticacion en Azure SQL: IaaS vs PaaS
+# Configuración de la autenticación y la autorización
 
 Este documento resume como funciona la autenticacion en SQL Server desplegado en Azure como IaaS (VM) y en servicios PaaS (Azure SQL Database). Incluye tambien pautas basicas de autorizacion.
 
