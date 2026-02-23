@@ -17,6 +17,7 @@ cd LabFiles/AllFiles/Labs/Setup
 
 - [01 Planeacion e implementacion de recursos de plataformas de datos](01%20Planeaci%C3%B3n%20e%20implementaci%C3%B3n%20de%20recursos%20de%20plataformas%20de%20datos/)
 - [02 Implementacion de un entorno seguro para un servicio de base de datos](02%20Implementaci%C3%B3n%20de%20un%20entorno%20seguro%20para%20un%20servicio%20de%20base%20de%20datos/)
+- [03 Supervisión y optimización de los recursos operativos en Azure SQL](03%20Supervisi%C3%B3n%20y%20optimizaci%C3%B3n%20de%20los%20recursos%20operativos%20en%20Azure%20SQL/)
 
 
 

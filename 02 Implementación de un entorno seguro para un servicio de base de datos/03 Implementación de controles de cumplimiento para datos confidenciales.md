@@ -169,7 +169,6 @@ Buenas prácticas:
 - Tratar las alertas como señales de investigación: correlacionar con logs de auditoría.
 - Programar escaneos regulares de Vulnerability Assessment.
 - Asegurar que la cuenta que gestiona Defender tenga permisos mínimos necesarios.
-- 
 &nbsp;
 
 ## Referencias y enlaces de interés
